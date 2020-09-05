@@ -1,0 +1,60 @@
+version: '3'
+services:
+  redis:
+    # image: "redis:latest"
+    image: "redis:alpine"
+    # run CLI: docker exec -it persistent_redis_1 redis-cli
+    # enter shell: docker exec -it persistent_redis_1 /bin/sh
+    command: ["redis-server", "--appendonly", "yes"]  # redis persistent storage
+    volumes:
+    - ./data/redis:/data
+    - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    user: "${UID_GID}"
+    ports:
+    - "6379:6379"
+  mysql:
+    image: "mysql:latest"
+    # connect: docker exec -it persistent_mysql_1 mysql -uroot -p
+    # connect (if port forwarded): mysql -h127.0.0.1 -uroot -p123456
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+    volumes:
+    - ./data/mysql:/var/lib/mysql
+#    - ./config/mysql/conf.d:/etc/mysql/conf.d
+    user: "${UID_GID}"
+    ports:
+      - "3306:3306"
+  postgres:
+    image: "postgres:alpine"
+    # connect: docker exec -it persistent_postgres_1 psql -U postgres
+    # from host client: psql -h localhost -U postgres
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "123456"
+    volumes:
+    - ./data/postgres:/var/lib/postgresql/data
+#    user: "${UID_GID}"  # not working
+    ports:
+    - "5432:5432"
+  rabbitmq:
+    image: "rabbitmq:management-alpine"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "s3cr3t_c00kIe"
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    ports:
+    - "15672:15672"
+    volumes:
+    - ./data/rabbitmq:/var/lib/rabbitmq
+    user: "${UID_GID}"
+  minio:
+    image: "minio/minio:latest"
+    command: ["server", "/data"]
+    environment:
+      MINIO_ACCESS_KEY: "minioadmin"
+      MINIO_SECRET_KEY: "s3cr3t_k3Y"
+    ports:
+    - "9000:9000"
+    volumes:
+    - ./data/minio:/data
