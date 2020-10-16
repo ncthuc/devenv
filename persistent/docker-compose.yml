@@ -12,6 +12,7 @@ services:
     user: "${UID_GID}"
     ports:
     - "6379:6379"
+    restart: always
   mysql:
     image: "mysql:latest"
     # connect: docker exec -it persistent_mysql_1 mysql -uroot -p
@@ -25,6 +26,7 @@ services:
     user: "${UID_GID}"
     ports:
       - "3306:3306"
+    restart: always
   postgres:
     image: "postgres:alpine"
     # connect: docker exec -it persistent_postgres_1 psql -U postgres
